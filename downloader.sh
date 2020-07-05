@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#diretorio deseja para colocar os arquivos
+clear
+sleep 1
+echo "START:downloader.sh"
+dir=$1;
+if [ -d "$dir" ];then
+  echo $dir;
+fi;
+if [ ! -d "$dir" ];then
+  echo "ERROR: $dir don't exist"
+  echo "Restart the program with a dir that exists"
+  echo "Example /home/$(whoami)/Music"
+  exit;
+fi;
+
+if [ ! -s "urllist" ];then
+  echo "ERROR:urllist is empty";
+  exit;
+fi
+
+grep youtube urllist  | xargs youtube-dl -f 140 ;
+format=.m4a; #id140
+new_format=.ogg; #conversor
+for file in *; do
+      if [ ${file: -4} == $format ] ;
+        then
+            noex=$(echo $file | cut -d"." -f1)
+            echo "$noex" | sed "s/ /\ /g";
+            ffmpeg -i "$noex$format" "$noex$new_format"
+            mv "$noex$new_format" "$dir";
+            rm "$noex$format";
+        fi
+
+done;
